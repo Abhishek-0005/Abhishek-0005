@@ -1,3 +1,8 @@
-- 👋 Hi, I’m @Abhishek-0005
+# 👋 Hi, I'm Abhishek
 
-ok
+### 🚀 Full Stack Developer | AI Enthusiast
+
+Passionate about building modern applications and exploring AI-powered solutions.  
+I enjoy creating impactful projects, solving problems, and continuously learning new things.
+
+⭐ Building, learning, and growing every day.
