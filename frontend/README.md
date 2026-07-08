@@ -1,44 +1,38 @@
 # Frontend (Next.js)
 
-This is a minimal Next.js (App Router) + TypeScript + Tailwind CSS app that integrates with a backend providing:
-- POST /auth/register
-- POST /auth/login
-- GET /users/me
+Next.js App Router frontend integrated with existing backend auth APIs (login/register/me).
 
-It uses server Route Handlers to proxy auth and user requests to the backend, sets an httpOnly `token` cookie on successful login/register, and reads that cookie to call `/users/me`.
+## Quickstart
 
-## Getting Started
+- Copy `.env.example` to `.env.local` and set:
 
-Prerequisites:
-- Node.js 18+
+```
+NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
+```
 
-Install dependencies:
+- Install deps and run:
 
-```bash
+```
 cd frontend
-npm install
+pnpm install # or npm install / yarn
+pnpm dev
 ```
 
-Configure environment variables (optional):
-- `NEXT_PUBLIC_API_BASE_URL` (default: `http://localhost:3000`)
+- Open http://localhost:3000 (if you run Next on port 3000, change as needed)
 
-Run the dev server:
+## Auth flows
 
-```bash
-npm run dev
-```
+- Login: POST /api/auth/login -> proxies to `${API_BASE_URL}/auth/login`, sets httpOnly `token` cookie
+- Register: POST /api/auth/register -> proxies to `${API_BASE_URL}/auth/register`, sets cookie
+- Me: Dashboard server component fetches `${API_BASE_URL}/users/me` with Authorization: Bearer token
+- Logout: POST /api/auth/logout -> clears cookie
 
-Open http://localhost:3000 (or the port shown) to view the app.
+Cookies are set as httpOnly, sameSite=lax, secure in production, path '/'.
 
-## App Structure
-- `src/app/(auth)/login` – Login page
-- `src/app/(auth)/register` – Register page
-- `src/app/dashboard` – Protected dashboard; loads profile via `/api/users/me`
-- `src/app/api/auth/*` – Proxy routes for login/register/logout; set/clear `token` cookie
-- `src/app/api/users/me` – Proxies `/users/me` including `Authorization: Bearer <token>`
-- `src/middleware.ts` – Redirects unauthenticated requests from `/dashboard` to `/login` and authenticated users from auth pages to `/dashboard`.
+## Scripts
 
-## Notes
-- The backend is expected to return `{ token: string }` or `{ accessToken: string }` on login/register.
-- The `token` is stored in an `httpOnly` cookie and is not accessible from client-side JavaScript.
-- Tailwind is set up with a few utility classes for simple styling.
+- `pnpm dev` - run dev server
+- `pnpm build` - build for production
+- `pnpm start` - start production server
+- `pnpm lint` - lint
+- `pnpm type-check` - TypeScript type checking
