@@ -1,12 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 @Injectable()
 export class LocalStrategy {
   // Placeholder implementation (no @nestjs/passport)
-  validate(username: string, password: string): any {
+  async validate(
+    username: string,
+    password: string,
+  ): Promise<{ userId: number; username: string }> {
     if (username && password) {
       return { userId: 1, username };
     }
-    return null;
+    throw new UnauthorizedException('User is suspicious');
   }
 }
