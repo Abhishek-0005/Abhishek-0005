@@ -8,7 +8,7 @@ export class AuthService {
   ): Promise<{ userId: number; username: string }> {
     // Centralized validation: throw 401 with message when invalid
     if (!username || !password) {
-      throw new UnauthorizedException('User is suspicious');
+      throw new UnauthorizedException('user is supercios');
     }
     return { userId: 1, username };
   }
