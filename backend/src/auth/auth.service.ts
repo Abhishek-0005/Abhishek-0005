@@ -1,16 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 @Injectable()
 export class AuthService {
   async validateUser(
     username: string,
     password: string,
-  ): Promise<{ userId: number; username: string } | null> {
-    // Dummy validation: returns a user object if both fields are provided, otherwise null
-    if (username && password) {
-      return { userId: 1, username };
+  ): Promise<{ userId: number; username: string }> {
+    // Centralized validation: throw 401 with message when invalid
+    if (!username || !password) {
+      throw new UnauthorizedException('User is suspicious');
     }
-    return null;
+    return { userId: 1, username };
   }
 
   async login(user: { username: string }) {
