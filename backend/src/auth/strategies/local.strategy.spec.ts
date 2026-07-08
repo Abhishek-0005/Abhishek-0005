@@ -12,7 +12,7 @@ describe('LocalStrategy', () => {
     const strategy = new LocalStrategy(authServiceMock);
 
     await expect(strategy.validate('x@example.com', 'wrong')).rejects.toThrow(
-      'user is supercios',
+      'Unauthorized',
     );
   });
 });
