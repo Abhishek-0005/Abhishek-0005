@@ -4,7 +4,7 @@ import { API_BASE_URL } from '@/lib/api'
 
 export async function GET() {
   try {
-    const cookieStore = await cookies()
+    const cookieStore = cookies()
     const token = cookieStore.get('token')?.value
 
     const res = await fetch(`${API_BASE_URL}/users/me`, {
