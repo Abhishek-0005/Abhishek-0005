@@ -1,33 +1,32 @@
-import { cookies, headers } from 'next/headers'
+import { fetchMe } from '@/lib/auth'
+import { Button } from '@/components/Button'
+
+async function logout() {
+  'use server'
+  await fetch('/api/auth/logout', { method: 'POST' })
+}
 
 export default async function DashboardPage() {
-  const cookieStore = cookies()
-  const token = cookieStore.get('token')?.value
-
-  const h = headers()
-  const proto = h.get('x-forwarded-proto') ?? 'http'
-  const host = h.get('host')
-  const base = `${proto}://${host}`
-
-  const res = await fetch(`${base}/api/users/me`, {
-    headers: token ? { Cookie: `token=${token}` } : undefined,
-    cache: 'no-store',
-  })
-
-  if (!res.ok) {
-    throw new Error('Failed to load profile')
-  }
-
-  const me = await res.json()
+  const me = await fetchMe()
 
   return (
-    <div className="card">
-      <h1 className="text-xl font-semibold mb-4">Dashboard</h1>
-      <p className="mb-2">Welcome, <span className="font-medium">{me?.name || me?.email || 'User'}</span></p>
-      <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">{JSON.stringify(me, null, 2)}</pre>
-      <form action="/api/auth/logout" method="post" className="mt-4">
-        <button className="button" type="submit">Logout</button>
-      </form>
+    <div className="mx-auto max-w-2xl p-6 space-y-4">
+      <h1 className="text-2xl font-semibold">Dashboard</h1>
+      {me ? (
+        <div className="space-y-2">
+          <p>
+            Logged in as: <span className="font-mono">{me.email || me.username || me.name}</span>
+          </p>
+          <pre className="p-4 bg-gray-100 rounded text-sm overflow-auto">
+{JSON.stringify(me, null, 2)}
+          </pre>
+          <form action={logout}>
+            <Button type="submit">Logout</Button>
+          </form>
+        </div>
+      ) : (
+        <p>Not authenticated.</p>
+      )}
     </div>
   )
 }
