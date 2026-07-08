@@ -12,11 +12,11 @@ export default async function DashboardPage() {
       headers: { Authorization: `Bearer ${token}` },
       cache: 'no-store'
     })
+    const data = await res.json().catch(() => ({}))
     if (!res.ok) {
-      const data = await res.json().catch(() => ({}))
-      throw new Error(data?.message || 'Failed to load user info')
+      throw new Error((data as any)?.message || 'Failed to load user info')
     }
-    me = await res.json()
+    me = data
   } catch (e: any) {
     error = e.message
   }
