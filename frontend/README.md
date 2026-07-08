@@ -18,7 +18,7 @@ npm install # or pnpm install / yarn install
 npm run dev
 ```
 
-- Open http://localhost:3001 if Next selects 3001 (backend might already use 3000). Adjust ports as needed.
+- Open the printed localhost URL (Next picks an available port, e.g., 3000 or 3001).
 
 ## Auth flows
 
