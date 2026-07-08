@@ -1,4 +1,3 @@
-import { UnauthorizedException } from '@nestjs/common';
 import { LocalStrategy } from './local.strategy';
 
 const authServiceMock: any = {
@@ -13,7 +12,7 @@ describe('LocalStrategy', () => {
     const strategy = new LocalStrategy(authServiceMock);
 
     await expect(strategy.validate('x@example.com', 'wrong')).rejects.toThrow(
-      new UnauthorizedException('user is supercios'),
+      'user is supercios',
     );
   });
 });
