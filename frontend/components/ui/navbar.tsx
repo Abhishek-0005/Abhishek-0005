@@ -1,13 +1,15 @@
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { Button } from './button'
+import { redirect } from 'next/navigation'
 
 export async function Navbar() {
   const token = cookies().get('token')?.value
 
   async function logout() {
     'use server'
-    await fetch('/api/auth/logout', { method: 'POST' })
+    cookies().delete('token')
+    redirect('/login')
   }
 
   return (
