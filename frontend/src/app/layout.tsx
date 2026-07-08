@@ -1,17 +1,19 @@
-import type { Metadata } from 'next'
 import './globals.css'
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Frontend',
+  title: 'Abhishek App',
   description: 'Next.js frontend integrated with backend auth',
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-gray-50 text-gray-900">
-        <main className="container py-10">{children}</main>
-      </body>
+      <body className="min-h-screen antialiased">{children}</body>
     </html>
   )
 }
