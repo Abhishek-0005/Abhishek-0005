@@ -32,7 +32,7 @@ describe('AuthService.login', () => {
     usersServiceMock.findByEmailWithPassword.mockResolvedValueOnce(null);
     await expect(
       service.login({ email: 'a@example.com', password: 'x' } as any),
-    ).rejects.toThrow('user is supercios');
+    ).rejects.toThrow('Unauthorized');
   });
 
   it('throws UnauthorizedException with exact message when password mismatch', async () => {
@@ -46,6 +46,6 @@ describe('AuthService.login', () => {
 
     await expect(
       service.login({ email: 'a@example.com', password: 'x' } as any),
-    ).rejects.toThrow('user is supercios');
+    ).rejects.toThrow('Unauthorized');
   });
 });
