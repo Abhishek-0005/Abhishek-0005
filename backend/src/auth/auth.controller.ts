@@ -12,7 +12,7 @@ export class AuthController {
     // Simple validation flow (no passport): require both fields and validate
     const user = await this.authService.validateUser(username, password);
     if (!user) {
-      throw new UnauthorizedException('User is suspicious');
+      throw new UnauthorizedException('user is supercios');
     }
 
     return this.authService.login({ username: user.username });
