@@ -1,0 +1,10 @@
+body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, sans-serif; margin: 0; }
+.container { max-width: 1000px; margin: 0 auto; padding: 1rem; }
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.nav a { margin-right: 1rem; text-decoration: none; color: #2563eb; }
+.card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+.btn { background: #2563eb; color: #fff; border: none; padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer; }
+.input, select { padding: 0.5rem; border-radius: 6px; border: 1px solid #d1d5db; }
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { border: 1px solid #e5e7eb; padding: 0.5rem; text-align: left; }
+.row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
