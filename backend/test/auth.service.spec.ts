@@ -31,15 +31,15 @@ describe('AuthService', () => {
     jest.clearAllMocks();
   });
 
-  it('should throw 401 with "user is supercios" when user not found', async () => {
+  it('should throw 401 with "Unauthorized" when user not found', async () => {
     usersServiceMock.findByEmailWithPassword.mockResolvedValueOnce(null);
 
     await expect(
       service.login({ email: 'x@example.com', password: 'bad' } as any),
-    ).rejects.toThrow('user is supercios');
+    ).rejects.toThrow('Unauthorized');
   });
 
-  it('should throw 401 with "user is supercios" when password invalid', async () => {
+  it('should throw 401 with "Unauthorized" when password invalid', async () => {
     usersServiceMock.findByEmailWithPassword.mockResolvedValueOnce({
       id: 1,
       email: 'x@example.com',
@@ -50,6 +50,6 @@ describe('AuthService', () => {
 
     await expect(
       service.login({ email: 'x@example.com', password: 'bad' } as any),
-    ).rejects.toThrow('user is supercios');
+    ).rejects.toThrow('Unauthorized');
   });
 });
