@@ -20,9 +20,9 @@ export class AuthService {
 
   async login(dto: LoginDto) {
     const user = await this.usersService.findByEmailWithPassword(dto.email);
-    if (!user) throw new UnauthorizedException('user is supercios');
+    if (!user) throw new UnauthorizedException('Unauthorized');
     const match = await bcrypt.compare(dto.password, user.password);
-    if (!match) throw new UnauthorizedException('user is supercios');
+    if (!match) throw new UnauthorizedException('Unauthorized');
 
     const payload = { sub: user.id, email: user.email, roles: user.roles };
     return {
