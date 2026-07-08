@@ -17,6 +17,9 @@ export async function Navbar() {
       <div className="container mx-auto flex h-14 items-center justify-between px-4">
         <Link href="/" className="font-semibold">Auth App</Link>
         <nav className="flex items-center gap-3">
+          {/* Subtle, non-intrusive link */}
+          <Link href="/thankyou" className="hidden text-sm text-gray-500 transition-colors hover:text-gray-700 sm:inline-block">Thank You</Link>
+
           {token ? (
             <>
               <Link href="/dashboard" className="text-sm text-gray-700 hover:text-gray-900">Dashboard</Link>
