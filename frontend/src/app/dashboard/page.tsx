@@ -1,5 +1,19 @@
+import { cookies, headers } from 'next/headers'
+
 export default async function DashboardPage() {
-  const res = await fetch('/api/users/me', { cache: 'no-store' })
+  const cookieStore = cookies()
+  const token = cookieStore.get('token')?.value
+
+  const h = headers()
+  const proto = h.get('x-forwarded-proto') ?? 'http'
+  const host = h.get('host')
+  const base = `${proto}://${host}`
+
+  const res = await fetch(`${base}/api/users/me`, {
+    headers: token ? { Cookie: `token=${token}` } : undefined,
+    cache: 'no-store',
+  })
+
   if (!res.ok) {
     throw new Error('Failed to load profile')
   }
