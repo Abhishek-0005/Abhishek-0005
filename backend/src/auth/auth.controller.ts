@@ -1,35 +1,20 @@
-import { Controller, Post, Body, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LocalStrategy } from './strategies/local.strategy';
-
-// Since we do not have @nestjs/passport, emulate a LocalAuthGuard using the LocalStrategy
-class LocalAuthGuardEmulated {
-  constructor(private readonly strategy: LocalStrategy) {}
-  async canActivate(body: any) {
-    const { username, password } = body || {};
-    await this.strategy.validate(username, password);
-    return true;
-  }
-}
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly localStrategy: LocalStrategy,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('login')
   async login(@Body() body: any) {
-    // Emulate LocalAuthGuard behavior
-    try {
-      const guard = new LocalAuthGuardEmulated(this.localStrategy);
-      await guard.canActivate(body);
-    } catch (e) {
+    const { username, password } = body || {};
+
+    // Simple validation flow (no passport): require both fields and validate
+    const user = await this.authService.validateUser(username, password);
+    if (!user) {
       throw new UnauthorizedException('User is suspicious');
     }
 
-    const { username } = body || {};
-    return this.authService.login({ username });
+    return this.authService.login({ username: user.username });
   }
 }
