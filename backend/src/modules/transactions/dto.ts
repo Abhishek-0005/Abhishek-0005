@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { IsDateString, IsEnum, IsInt, IsNumber, IsOptional, IsPositive, IsString, MaxLength, Min } from 'class-validator';
 import { TransactionType } from '@prisma/client';
 
@@ -17,6 +18,7 @@ export class CreateTransactionDto {
   description?: string;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(1)
   categoryId?: number | null;
@@ -41,6 +43,7 @@ export class UpdateTransactionDto {
   description?: string;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(1)
   categoryId?: number | null;
@@ -60,6 +63,7 @@ export class TransactionFiltersDto {
   type?: TransactionType;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   categoryId?: number;
 
