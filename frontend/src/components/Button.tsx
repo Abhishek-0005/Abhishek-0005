@@ -1,22 +1,21 @@
 import React from 'react'
-import clsx from 'clsx'
 
 type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   loading?: boolean
 }
 
 export const Button: React.FC<Props> = ({
-  className,
+  className = '',
   children,
   disabled,
   loading,
   ...rest
 }) => (
   <button
-    className={clsx(
-      'px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50',
+    className={
+      'px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 ' +
       className
-    )}
+    }
     disabled={disabled || loading}
     {...rest}
   >
