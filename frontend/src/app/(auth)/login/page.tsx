@@ -1,58 +1,74 @@
-"use client"
+'use client'
 
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import FormInput from '@/components/FormInput'
 import { useState } from 'react'
-import Link from 'next/link'
+import { Button } from '@/components/Button'
+import { useRouter } from 'next/navigation'
 
 const schema = z.object({
-  email: z.string().email('Valid email is required'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().email(),
+  password: z.string().min(6),
 })
 
 type FormData = z.infer<typeof schema>
 
 export default function LoginPage() {
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) })
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+  const [serverError, setServerError] = useState<string | null>(null)
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({ resolver: zodResolver(schema) })
 
   const onSubmit = async (data: FormData) => {
-    setError(null); setLoading(true)
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      })
-      if (!res.ok) throw new Error(await res.text())
-      window.location.href = '/dashboard'
-    } catch (e: any) {
-      setError(e.message || 'Login failed')
-    } finally {
-      setLoading(false)
+    setServerError(null)
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    if (res.ok) {
+      router.replace('/dashboard')
+      router.refresh()
+    } else {
+      const body = await res.json().catch(() => ({}))
+      setServerError(body.message || 'Login failed')
     }
   }
 
   return (
-    <div className="card">
-      <h1 className="text-xl font-semibold mb-4">Login</h1>
+    <div className="mx-auto max-w-md p-6">
+      <h1 className="text-2xl font-semibold mb-6">Login</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
-          <label className="block mb-1">Email</label>
-          <input className="input" type="email" {...register('email')} />
-          {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
-        </div>
-        <div>
-          <label className="block mb-1">Password</label>
-          <input className="input" type="password" {...register('password')} />
-          {errors.password && <p className="text-red-600 text-sm mt-1">{errors.password.message}</p>}
-        </div>
-        {error && <p className="text-red-600 text-sm">{error}</p>}
-        <button className="button" type="submit" disabled={loading}>{loading ? 'Signing in...' : 'Sign In'}</button>
+        <FormInput
+          label="Email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          {...register('email')}
+          error={errors.email}
+        />
+        <FormInput
+          label="Password"
+          name="password"
+          type="password"
+          autoComplete="current-password"
+          {...register('password')}
+          error={errors.password}
+        />
+        {serverError && (
+          <p className="text-sm text-red-600" role="alert">
+            {serverError}
+          </p>
+        )}
+        <Button type="submit" loading={isSubmitting} className="w-full">
+          Sign in
+        </Button>
       </form>
-      <p className="mt-4 text-sm">No account? <Link className="link" href="/register">Register</Link></p>
     </div>
   )
 }
