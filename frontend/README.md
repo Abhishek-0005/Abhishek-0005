@@ -1,38 +1,36 @@
-# Frontend (Next.js)
+# Frontend (Next.js App)
 
-Next.js App Router frontend integrated with existing backend auth APIs (login/register/me).
+A modern Next.js 14 (App Router, TypeScript, Tailwind CSS) frontend that integrates with the existing backend APIs for authentication.
 
-## Quickstart
+## Prerequisites
+- Node.js 18+
+- pnpm, npm, or yarn
 
-- Copy `.env.example` to `.env.local` and set:
-
+## Setup
+1. Copy environment file
+```bash
+cp .env.example .env.local
 ```
-NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
-```
+2. Adjust `NEXT_PUBLIC_API_BASE_URL` to point to your backend (default: http://localhost:3000)
 
-- Install deps and run:
-
-```
-cd frontend
-npm install # or pnpm install / yarn install
+3. Install deps and run dev server
+```bash
+npm install
 npm run dev
+# opens on http://localhost:3001
 ```
 
-- Open the printed localhost URL (Next picks an available port, e.g., 3000 or 3001).
-
-## Auth flows
-
-- Login: POST /api/auth/login -> proxies to `${API_BASE_URL}/auth/login`, sets httpOnly `token` cookie
-- Register: POST /api/auth/register -> proxies to `${API_BASE_URL}/auth/register`, sets cookie
-- Me: Dashboard server component fetches `${API_BASE_URL}/users/me` with Authorization: Bearer token
-- Logout: POST /api/auth/logout -> clears cookie
-
-Cookies are set as httpOnly, sameSite=lax, secure in production, path '/'.
+## Auth Flow
+- Client pages call Next.js route handlers under `/api/auth/*`.
+- These handlers proxy to the backend and set/remove an httpOnly `token` cookie.
+- Protected routes (e.g., `/dashboard`) are guarded by middleware. Server component fetches `/users/me` using the cookie token.
 
 ## Scripts
+- `dev` - start dev server at 3001
+- `build` - build production
+- `start` - run production at 3001
+- `lint` - run ESLint
 
-- `npm run dev` - run dev server
-- `npm run build` - build for production
-- `npm run start` - start production server
-- `npm run lint` - lint
-- `npm run type-check` - TypeScript type checking
+## Notes
+- Cookie name: `token` (httpOnly, secure in production, sameSite=lax, path=/)
+- Tailwind is enabled via `globals.css` and `tailwind.config.ts`.
