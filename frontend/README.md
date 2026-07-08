@@ -14,11 +14,11 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:3000
 
 ```
 cd frontend
-pnpm install # or npm install / yarn
-pnpm dev
+npm install # or pnpm install / yarn install
+npm run dev
 ```
 
-- Open http://localhost:3000 (if you run Next on port 3000, change as needed)
+- Open http://localhost:3001 if Next selects 3001 (backend might already use 3000). Adjust ports as needed.
 
 ## Auth flows
 
@@ -31,8 +31,8 @@ Cookies are set as httpOnly, sameSite=lax, secure in production, path '/'.
 
 ## Scripts
 
-- `pnpm dev` - run dev server
-- `pnpm build` - build for production
-- `pnpm start` - start production server
-- `pnpm lint` - lint
-- `pnpm type-check` - TypeScript type checking
+- `npm run dev` - run dev server
+- `npm run build` - build for production
+- `npm run start` - start production server
+- `npm run lint` - lint
+- `npm run type-check` - TypeScript type checking
