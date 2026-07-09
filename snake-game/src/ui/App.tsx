@@ -1,18 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { getNextDirectionAI, type Cell, type Direction, type GameState, initialGameState, stepGame, turnLeft, turnRight } from '../util/game'
+import { computeEffectiveInterval, getNextDirectionAI, type Cell, type Direction, type GameState, initialGameState, stepGame, turnLeft, turnRight, type MouseAccel } from '../util/game'
 
 export function App() {
   const [state, setState] = useState<GameState>(() => initialGameState())
   const [isRunning, setIsRunning] = useState(true)
-  const [mouseAccel, setMouseAccel] = useState<'normal'|'fast'|'slow'>('normal')
+  const [mouseAccel, setMouseAccel] = useState<MouseAccel>('normal')
+  const downButtons = useRef<Set<number>>(new Set())
 
   const intervalRef = useRef<number | null>(null)
 
   const effectiveInterval = useMemo(() => {
-    const base = state.settings.speedMs
-    if (mouseAccel === 'fast') return Math.max(50, Math.round(base * 0.5)) // ~fast
-    if (mouseAccel === 'slow') return Math.min(400, Math.round(base * 1.6)) // brake
-    return base
+    return computeEffectiveInterval(state.settings.speedMs, mouseAccel)
   }, [mouseAccel, state.settings.speedMs])
 
   const tick = useCallback(() => {
@@ -38,17 +36,31 @@ export function App() {
       }
       if (e.key === 'ArrowLeft') setState(s => ({...s, player: {...s.player, dir: turnLeft(s.player.dir)}}))
       if (e.key === 'ArrowRight') setState(s => ({...s, player: {...s.player, dir: turnRight(s.player.dir)}}))
-      if (e.key === 'r') setState(() => initialGameState({ keepHighScore: true }))
+      if (e.key === 'r') setState(() => initialGameState({ keepHighScore: true, ...state.settings }))
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [])
+  }, [state.settings])
+
+  const recomputeMouseAccel = () => {
+    const s = downButtons.current
+    if (s.has(2)) setMouseAccel('slow')
+    else if (s.has(0)) setMouseAccel('fast')
+    else setMouseAccel('normal')
+  }
 
   const onMouseDown = (e: React.MouseEvent) => {
-    if (e.button === 0) setMouseAccel('fast')
-    if (e.button === 2) setMouseAccel('slow')
+    downButtons.current.add(e.button)
+    recomputeMouseAccel()
   }
-  const onMouseUp = () => setMouseAccel('normal')
+  const onMouseUp = (e: React.MouseEvent) => {
+    downButtons.current.delete(e.button)
+    recomputeMouseAccel()
+  }
+  const onMouseLeave = () => {
+    downButtons.current.clear()
+    setMouseAccel('normal')
+  }
   const onContextMenu = (e: React.MouseEvent) => {
     e.preventDefault()
   }
@@ -107,7 +119,7 @@ export function App() {
           }}
           onMouseDown={onMouseDown}
           onMouseUp={onMouseUp}
-          onMouseLeave={onMouseUp}
+          onMouseLeave={onMouseLeave}
           onContextMenu={onContextMenu}
           role="application"
           aria-label="Snake board"
