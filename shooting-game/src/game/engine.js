@@ -1,6 +1,6 @@
 import { vec, add, sub, mul, norm, len, clamp, angle, fromAngle, TAU } from './utils.js'
 import { integrate, resolveWorldBounds, avoidObstacles } from './physics.js'
-import { createPlayer, createBot, createWorld, updateSafeZone, spawnLoot, shoot, reload, finishReload } from './entities.js'
+import { createPlayer, createBot, createWorld, updateSafeZone, spawnLootRandom, shoot, reload, finishReload } from './entities.js'
 import { updateBot } from './ai.js'
 import { sfx } from './audio.js'
 
@@ -31,7 +31,7 @@ export function createGame(initialSettings){
     state.entities.push(createBot(x,y, Math.floor(Math.random()*360)))
   }
   // Seed starting loot
-  for(let i=0;i<8;i++) state.entities.push(spawnLoot(state.world))
+  for(let i=0;i<8;i++) state.entities.push(spawnLootRandom(state.world))
 
   function handleInput(){
     const p = state.player
@@ -106,7 +106,7 @@ export function createGame(initialSettings){
       for(const e of state.entities){ if (e.type==='loot' && e.dead) e.remove=true }
       state.entities = state.entities.filter(e=>!e.remove)
       if (state.entities.filter(e=>e.type==='loot'&&!e.dead).length<6){
-        state.entities.push(spawnLoot(state.world))
+        state.entities.push(spawnLootRandom(state.world))
       }
     }
   }
