@@ -18,18 +18,18 @@ Features:
 - Optional AI snake with simple pathing and timed respawn after collisions
 - Tests with Vitest (AI behavior, collisions, mouse speed/brake logic)
 
-Getting started:
-- Run dev server:
+Quick start:
+- Development
   - cd snake-game
   - npm install
   - npm run dev
-- Run tests:
+- Test
   - npm test
   - npm run test:watch
-- Build preview:
+- Build
   - npm run build
   - npm run preview
 
 Notes:
-- The app supports keyboard controls: Space (pause), Arrow keys (turn), R (reset)
-- The high score persists locally via localStorage
+- Keyboard controls: Space (pause), Arrow keys (turn), R (reset)
+- High score persists via localStorage
