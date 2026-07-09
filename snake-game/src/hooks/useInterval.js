@@ -1,20 +1,16 @@
 import { useEffect, useRef } from 'react'
 
+// A stable interval that updates the callback and delay without stale closures
 export function useInterval(callback, delay) {
-  const savedCallback = useRef()
-  const delayRef = useRef(delay)
+  const savedCallback = useRef(callback)
 
   useEffect(() => {
     savedCallback.current = callback
   }, [callback])
 
   useEffect(() => {
-    delayRef.current = delay
-  }, [delay])
-
-  useEffect(() => {
-    if (delayRef.current == null) return
-    const id = setInterval(() => savedCallback.current && savedCallback.current(), delayRef.current)
+    if (delay == null) return
+    const id = setInterval(() => savedCallback.current && savedCallback.current(), delay)
     return () => clearInterval(id)
-  }, [delayRef.current])
+  }, [delay])
 }
