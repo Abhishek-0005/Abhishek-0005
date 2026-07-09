@@ -55,7 +55,8 @@ export default function App(){
     const g = createGame(settings)
     setGame(g)
     setUi({screen:'playing'})
-    setTimeout(()=> g.mount(canvasRef.current), 0)
+    // Mount immediately; allow a microtask to ensure canvasRef is set but don't defer a full frame
+    Promise.resolve().then(()=> g.mount(canvasRef.current))
   }
 
   return (
