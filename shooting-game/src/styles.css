@@ -1,0 +1,9 @@
+html, body, #root { height: 100%; margin: 0; }
+body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; background: #111; color: #eee; }
+button { cursor: pointer; }
+.overlay { position: absolute; top: 0; left: 0; right: 0; padding: 8px 12px; display: flex; gap: 12px; align-items: center; }
+.hud { position: absolute; bottom: 8px; left: 8px; right: 8px; display: flex; justify-content: space-between; font-size: 14px;}
+.panel { background: rgba(0,0,0,0.6); padding: 8px 10px; border-radius: 6px; border: 1px solid #333; }
+.center { position: absolute; inset: 0; display: grid; place-items: center; }
+canvas { display: block; width: 100vw; height: 100vh; background: #1a1a1a; }
+.small { font-size: 12px; opacity: 0.8; }
