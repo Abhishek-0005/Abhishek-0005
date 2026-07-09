@@ -65,3 +65,31 @@ export function spawnFood(gridSize = GRID_DEFAULT, snake) {
   } while (occupied.has(`${x},${y}`))
   return { x, y }
 }
+
+// Decide a grid direction that steers the snake head toward a target cell without reversing.
+export function nextDirectionTowardTarget(head, currentDir, target) {
+  if (!target) return currentDir
+  const dx = target.x - head.x
+  const dy = target.y - head.y
+  // If already on target, keep current direction
+  if (dx === 0 && dy === 0) return currentDir
+  // Prefer the axis with the larger absolute distance
+  const tryXFirst = Math.abs(dx) >= Math.abs(dy)
+
+  function dirFor(sign, axis) {
+    if (axis === 'x') return sign > 0 ? DIRECTIONS.RIGHT : DIRECTIONS.LEFT
+    return sign > 0 ? DIRECTIONS.DOWN : DIRECTIONS.UP
+  }
+
+  const primary = tryXFirst ? dirFor(Math.sign(dx), 'x') : dirFor(Math.sign(dy), 'y')
+  const secondary = tryXFirst ? dirFor(Math.sign(dy), 'y') : dirFor(Math.sign(dx), 'x')
+
+  // Helper to check reverse
+  function isReverse(nd) {
+    return currentDir && currentDir.x + nd.x === 0 && currentDir.y + nd.y === 0
+  }
+
+  if (primary && !isReverse(primary)) return primary
+  if (secondary && !isReverse(secondary)) return secondary
+  return currentDir
+}
