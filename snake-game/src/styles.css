@@ -36,9 +36,9 @@ body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubunt
 
 .scoreboard { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
 .scores { display: flex; gap: 1rem; }
-.score-actions { display: flex; gap: 0.5rem; }
+.score-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
-/* Enhanced board background: subtle grass-like with crisp grid lines on high-DPI */
+/* Enhanced board background: subtle grass-like with crisp grid lines via actual grid gap */
 .board {
   aspect-ratio: 1/1;
   width: 100%;
@@ -48,15 +48,14 @@ body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubunt
   gap: 1px;
   background:
     linear-gradient(135deg, color-mix(in srgb, var(--board-bg1) 60%, transparent), var(--board-bg2)) padding-box,
-    /* fine checker pattern */
-    radial-gradient(circle at 25% 25%, color-mix(in srgb, var(--board-bg2) 90%, transparent) 25%, #0000 26%) 8px 8px / 16px 16px,
-    radial-gradient(circle at 75% 75%, color-mix(in srgb, var(--board-bg1) 70%, transparent) 20%, #0000 21%) 8px 8px / 16px 16px,
-    /* crisp grid lines using mask-like gradient */
-    repeating-linear-gradient(0deg, var(--grid) 0 1px, #0000 1px 32px),
-    repeating-linear-gradient(90deg, var(--grid) 0 1px, #0000 1px 32px);
+    radial-gradient(circle at 25% 25%, color-mix(in srgb, var(--board-bg2) 85%, transparent) 25%, #0000 26%) 8px 8px / 16px 16px,
+    radial-gradient(circle at 75% 75%, color-mix(in srgb, var(--board-bg1) 65%, transparent) 20%, #0000 21%) 8px 8px / 16px 16px;
   border-radius: 12px;
   overflow: hidden;
   outline: 2px solid var(--grid);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none; /* avoids unwanted gestures on touchpads */
 }
 .cell { background: #0000; }
 
