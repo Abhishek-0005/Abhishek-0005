@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function Scoreboard({ score, highScore, onRestart, onPause, isPaused }) {
+export default function Scoreboard({ score, highScore, onRestart, onPause, isPaused, mouseEnabled, onToggleMouse }) {
   return (
     <div className="scoreboard" role="status" aria-live="polite">
       <div className="scores">
@@ -12,6 +12,9 @@ export default function Scoreboard({ score, highScore, onRestart, onPause, isPau
           {isPaused ? 'Resume' : 'Pause'}
         </button>
         <button className="btn" onClick={onRestart} aria-label="Restart game">Restart</button>
+        <button className="btn" onClick={onToggleMouse} aria-pressed={mouseEnabled} aria-label="Toggle mouse control">
+          Mouse: {mouseEnabled ? 'On' : 'Off'}
+        </button>
       </div>
     </div>
   )
