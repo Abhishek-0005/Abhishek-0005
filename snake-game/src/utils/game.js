@@ -66,6 +66,47 @@ export function spawnFood(gridSize = GRID_DEFAULT, snake) {
   return { x, y }
 }
 
+// New: rectangular-grid aware helpers for AI and fullscreen mode
+export function isReverse(currentDir, nd) {
+  return currentDir && nd && currentDir.x + nd.x === 0 && currentDir.y + nd.y === 0
+}
+
+export function willCollideAt(pos, cols, rows, occupiedSet) {
+  // bounds
+  if (pos.x < 0 || pos.y < 0 || pos.x >= cols || pos.y >= rows) return true
+  // body occupancy
+  if (occupiedSet && occupiedSet.has(`${pos.x},${pos.y}`)) return true
+  return false
+}
+
+export function spawnFoodWithOccupied(cols, rows, occupiedSet) {
+  const total = cols * rows
+  if (occupiedSet.size >= total) return { x: 0, y: 0 }
+  let x, y
+  let safety = 0
+  do {
+    x = Math.floor(Math.random() * cols)
+    y = Math.floor(Math.random() * rows)
+    safety++
+  } while (occupiedSet.has(`${x},${y}`) && safety < total + 5)
+  return { x, y }
+}
+
+export function chooseNearestFood(head, foods) {
+  if (!foods || foods.length === 0) return null
+  let best = foods[0]
+  let bestDist = Math.abs(best.x - head.x) + Math.abs(best.y - head.y)
+  for (let i = 1; i < foods.length; i++) {
+    const f = foods[i]
+    const d = Math.abs(f.x - head.x) + Math.abs(f.y - head.y)
+    if (d < bestDist) {
+      best = f
+      bestDist = d
+    }
+  }
+  return best
+}
+
 // Decide a grid direction that steers the snake head toward a target cell without reversing.
 export function nextDirectionTowardTarget(head, currentDir, target) {
   if (!target) return currentDir
@@ -85,11 +126,82 @@ export function nextDirectionTowardTarget(head, currentDir, target) {
   const secondary = tryXFirst ? dirFor(Math.sign(dy), 'y') : dirFor(Math.sign(dx), 'x')
 
   // Helper to check reverse
-  function isReverse(nd) {
+  function isRev(nd) {
     return currentDir && currentDir.x + nd.x === 0 && currentDir.y + nd.y === 0
   }
 
-  if (primary && !isReverse(primary)) return primary
-  if (secondary && !isReverse(secondary)) return secondary
+  if (primary && !isRev(primary)) return primary
+  if (secondary && !isRev(secondary)) return secondary
   return currentDir
+}
+
+// Greedy AI step: prefer moving toward nearest food, avoid immediate collisions (walls/occupied next cells),
+// respect no-reverse rule; try alternatives when blocked.
+export function nextSafeDirectionTowardTarget(head, currentDir, target, {
+  cols,
+  rows,
+  occupiedSet,
+  ownTail,
+  willGrow,
+} = {}) {
+  // Fallback to existing heuristic first to get a preference ordering
+  const pref1 = nextDirectionTowardTarget(head, currentDir, target)
+
+  const allDirs = [DIRECTIONS.UP, DIRECTIONS.DOWN, DIRECTIONS.LEFT, DIRECTIONS.RIGHT]
+  const noReverse = (d) => !isReverse(currentDir, d)
+
+  // Create an ordered list to try: primary, secondary from heuristic, then the remaining
+  const dx = target ? target.x - head.x : 0
+  const dy = target ? target.y - head.y : 0
+  const tryXFirst = Math.abs(dx) >= Math.abs(dy)
+  const dirFor = (sign, axis) => (axis === 'x' ? (sign > 0 ? DIRECTIONS.RIGHT : DIRECTIONS.LEFT) : (sign > 0 ? DIRECTIONS.DOWN : DIRECTIONS.UP))
+  const primary = pref1
+  const secondary = tryXFirst ? dirFor(Math.sign(dy), 'y') : dirFor(Math.sign(dx), 'x')
+  const candidates = [primary, secondary, ...allDirs.filter((d) => d !== primary && d !== secondary)]
+
+  for (const cand of candidates) {
+    if (!cand || !noReverse(cand)) continue
+    const next = { x: head.x + cand.x, y: head.y + cand.y }
+    // Allow stepping onto own tail if not growing (tail will vacate)
+    const occ = new Set(occupiedSet || [])
+    if (ownTail && !willGrow) occ.delete(`${ownTail.x},${ownTail.y}`)
+    if (!willCollideAt(next, cols, rows, occ)) return cand
+  }
+  // If everything seems blocked, try to keep going if it's not an immediate collision
+  if (currentDir) {
+    const next = { x: head.x + currentDir.x, y: head.y + currentDir.y }
+    const occ = new Set(occupiedSet || [])
+    if (ownTail && !willGrow) occ.delete(`${ownTail.x},${ownTail.y}`)
+    if (!willCollideAt(next, cols, rows, occ)) return currentDir
+  }
+  // As a last resort, pick any non-reverse direction (might collide; caller will handle death)
+  for (const d of allDirs) if (noReverse(d)) return d
+  return currentDir || DIRECTIONS.RIGHT
+}
+
+export function rectCheckSelfOrWallCollision(snake, cols, rows) {
+  const [head, ...body] = snake
+  if (head.x < 0 || head.y < 0 || head.x >= cols || head.y >= rows) return true
+  return body.some((p) => p.x === head.x && p.y === head.y)
+}
+
+export function spawnRandomSnake(cols, rows, occupiedSet) {
+  // Attempt to place a 2-length snake in a random safe spot with a valid initial direction
+  const attempts = Math.max(200, cols * rows)
+  for (let i = 0; i < attempts; i++) {
+    const x = Math.floor(Math.random() * cols)
+    const y = Math.floor(Math.random() * rows)
+    const dirs = [DIRECTIONS.UP, DIRECTIONS.DOWN, DIRECTIONS.LEFT, DIRECTIONS.RIGHT]
+    for (const d of dirs) {
+      const head = { x, y }
+      const tail = { x: x - d.x, y: y - d.y }
+      const okHead = !willCollideAt(head, cols, rows, occupiedSet)
+      const okTail = !willCollideAt(tail, cols, rows, occupiedSet)
+      if (okHead && okTail) {
+        return { body: [head, tail], direction: d }
+      }
+    }
+  }
+  // Fallback: place at (0,0) to avoid crash
+  return { body: [{ x: 1, y: 1 }, { x: 0, y: 1 }], direction: DIRECTIONS.RIGHT }
 }
