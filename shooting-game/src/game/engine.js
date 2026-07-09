@@ -19,6 +19,8 @@ export function createGame(initialSettings){
     camera: vec(0,0),
     settings,
     stats: {remaining:0},
+    canvas: null,
+    ctx: null,
   }
   const player = createPlayer(700, 700)
   state.player = player
@@ -184,9 +186,13 @@ export function createGame(initialSettings){
     if ((code==='Enter' || code==='NumpadEnter') && down && state.player.dead) return 'restart'
   }
 
+  const raf = (typeof window !== 'undefined' && window.requestAnimationFrame)
+    ? (cb)=>window.requestAnimationFrame(cb)
+    : (cb)=> setTimeout(()=>cb((typeof performance!=='undefined' && performance.now)?performance.now():Date.now()), 16)
+
   function fixedUpdateLoop(time){
     if (!state.running) return
-    if (document.hidden){ state.lastTime = time; requestAnimationFrame(fixedUpdateLoop); return }
+    if (typeof document !== 'undefined' && document.hidden){ state.lastTime = time; raf(fixedUpdateLoop); return }
     if (state.lastTime===0) state.lastTime = time
     let frame = (time - state.lastTime)/1000
     if (frame>0.25) frame = 0.25
@@ -199,30 +205,40 @@ export function createGame(initialSettings){
     }
     const canvas = state.canvas
     const ctx2d = state.ctx
+    if (!canvas || !ctx2d){ raf(fixedUpdateLoop); return }
     const {width, height} = canvas
     render(ctx2d, width, height)
-    requestAnimationFrame(fixedUpdateLoop)
+    raf(fixedUpdateLoop)
   }
 
   function mount(canvas){
+    if (!canvas) return
     state.canvas = canvas
     const ctx2d = canvas.getContext('2d')
     state.ctx = ctx2d
     resize()
     state.running = true
-    requestAnimationFrame(fixedUpdateLoop)
+    state.lastTime = 0 // reset timeline when (re)mounting
+    raf(fixedUpdateLoop)
   }
 
   function resize(){
-    const dpr = Math.min(window.devicePixelRatio||1, 2)
-    const rect = state.canvas.getBoundingClientRect()
+    if (!state.canvas || !state.ctx) return
+    const dpr = (typeof window !== 'undefined') ? Math.min(window.devicePixelRatio||1, 2) : 1
+    let rect = {width:0, height:0}
+    if (typeof state.canvas.getBoundingClientRect === 'function'){
+      rect = state.canvas.getBoundingClientRect()
+    }
+    if (!rect.width || !rect.height){
+      rect = (typeof window !== 'undefined') ? {width: window.innerWidth, height: window.innerHeight} : {width: 800, height: 600}
+    }
     state.canvas.width = Math.floor(rect.width * dpr)
     state.canvas.height = Math.floor(rect.height * dpr)
     state.ctx.setTransform(dpr,0,0,dpr,0,0)
   }
 
   function blur(){ state.paused = true }
-  function focus(){ state.paused = false }
+  function focus(){ state.paused = false; state.lastTime = 0 }
 
   return { state, mount, resize, blur, focus, onMouseMove, onMouseDown, onMouseUp, onKey }
 }
