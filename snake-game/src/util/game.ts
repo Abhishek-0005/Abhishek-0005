@@ -27,6 +27,13 @@ export type GameState = {
   aiRespawnIn: number
 }
 
+export type MouseAccel = 'normal'|'fast'|'slow'
+export function computeEffectiveInterval(base: number, accel: MouseAccel): number {
+  if (accel === 'fast') return Math.max(50, Math.round(base * 0.5))
+  if (accel === 'slow') return Math.min(400, Math.round(base * 1.6))
+  return base
+}
+
 const DIRS: Record<Direction, Cell> = {
   up: { r: -1, c: 0 },
   down: { r: 1, c: 0 },
