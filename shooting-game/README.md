@@ -30,5 +30,8 @@ Controls:
 Tests:
 - npm test
 
+Troubleshooting:
+- If clicking Play shows a blank canvas: ensure the canvas element is present in index.html and that the app has focus. As of this fix, the engine resets its clock on focus and mount to avoid a stuck loop when the tab was previously hidden. Also try clicking the page once to allow audio context to resume.
+
 Notes:
 - Keep assets lightweight (no large binaries). All sfx generated via WebAudio.
