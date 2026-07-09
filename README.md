@@ -17,18 +17,26 @@ Features:
 - Mouse controls: left-click to boost, right-click to brake (prevents context menu)
 - Optional AI snake with simple pathing and timed respawn after collisions
 - Tests with Vitest (AI behavior, collisions, mouse speed/brake logic)
+- Keyboard and mobile-friendly controls, score + high score, pause/resume, restart
 
-Getting started:
-- Run dev server:
-  - cd snake-game
-  - npm install
-  - npm run dev
-- Run tests:
-  - npm test
-  - npm run test:watch
-- Build preview:
-  - npm run build
-  - npm run preview
+Quick start:
+```
+cd snake-game
+npm install
+npm run dev
+```
+
+Tests:
+```
+npm test
+npm run test:watch
+```
+
+Build & preview:
+```
+npm run build
+npm run preview
+```
 
 Notes:
 - The app supports keyboard controls: Space (pause), Arrow keys (turn), R (reset)
