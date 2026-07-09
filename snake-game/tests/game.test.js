@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { checkCollision, spawnFood, moveSnake, DIRECTIONS } from '../src/utils/game.js'
+import { checkCollision, spawnFood, moveSnake, DIRECTIONS, nextDirectionTowardTarget } from '../src/utils/game.js'
 
 describe('game utils', () => {
   beforeEach(() => {
@@ -36,5 +36,29 @@ describe('game utils', () => {
     expect(grew).toBe(true)
     expect(newSnake.length).toBe(snake.length + 1)
     expect(newSnake[0]).toEqual({ x: 2, y: 1 })
+  })
+
+  describe('nextDirectionTowardTarget', () => {
+    it('steers along dominant axis toward target', () => {
+      const head = { x: 1, y: 1 }
+      const target = { x: 4, y: 2 }
+      const dir = nextDirectionTowardTarget(head, DIRECTIONS.UP, target)
+      expect(dir).toEqual(DIRECTIONS.RIGHT)
+    })
+
+    it('avoids reversing direction', () => {
+      const head = { x: 5, y: 5 }
+      const target = { x: 4, y: 5 } // would suggest LEFT
+      const dir = nextDirectionTowardTarget(head, DIRECTIONS.RIGHT, target)
+      // Should not reverse to LEFT; pick vertical secondary (no-op if equal)
+      expect(dir).not.toEqual(DIRECTIONS.LEFT)
+    })
+
+    it('returns current direction if on target', () => {
+      const head = { x: 3, y: 3 }
+      const target = { x: 3, y: 3 }
+      const dir = nextDirectionTowardTarget(head, DIRECTIONS.DOWN, target)
+      expect(dir).toEqual(DIRECTIONS.DOWN)
+    })
   })
 })
