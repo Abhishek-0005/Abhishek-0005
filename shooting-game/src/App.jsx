@@ -83,7 +83,7 @@ export default function App(){
             </div>
             <div style={{display:'flex', gap:8, marginTop:8}}>
               <button onClick={()=>{ start(); sfx.click() }}>Play</button>
-              <a className="small" href="https://github.com/Abhishek-0005/Abhishek-0005" target="_blank" rel="noreferrer">Repo</a>
+              <button onClick={()=>{ window.open('https://github.com/Abhishek-0005/Abhishek-0005','_blank'); sfx.click() }}>Repo</button>
             </div>
           </div>
         </div>
