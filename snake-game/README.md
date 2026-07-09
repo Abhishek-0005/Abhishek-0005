@@ -25,6 +25,12 @@ npm install
 npm run dev
 ```
 
+Run unit tests (Vitest):
+
+```bash
+npm test
+```
+
 Build for production and preview:
 
 ```bash
