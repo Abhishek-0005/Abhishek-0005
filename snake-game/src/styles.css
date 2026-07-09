@@ -1,0 +1,130 @@
+:root {
+  --bg: #0a0f14;
+  --fg: #e5f0ff;
+  --grid: #1a2a36;
+  --snake: #10b981;
+  --snake-player: #22c55e;
+  --snake-ai-0: #60a5fa;
+  --snake-ai-1: #f59e0b;
+  --snake-ai-2: #ef4444;
+  --snake-ai-3: #a78bfa;
+  --snake-ai-4: #14b8a6;
+  --snake-shade: color-mix(in srgb, var(--snake) 80%, #0000);
+  --food: #ef4444;
+  --accent: #3b82f6;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f6fbff;
+    --fg: #07131d;
+    --grid: #d7e3ec;
+    --snake-player: #16a34a;
+    --snake-ai-0: #2563eb;
+    --snake-ai-1: #b45309;
+    --snake-ai-2: #dc2626;
+    --snake-ai-3: #7c3aed;
+    --snake-ai-4: #0d9488;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; background: var(--bg); color: var(--fg); }
+
+.app { min-height: 100%; display: flex; flex-direction: column; align-items: stretch; }
+.header { width: 100%; display: flex; justify-content: center; align-items: center; padding: 0.5rem 1rem; }
+.header h1 { margin: 0.25rem 0; font-size: 1.25rem; letter-spacing: 0.02em; opacity: 0.9; }
+
+.main { width: 100%; max-width: 960px; margin: 0 auto; display: grid; gap: 0.5rem; grid-template-rows: auto 1fr auto auto; padding: 0 0.75rem 0.75rem; }
+
+/* Fullscreen behavior */
+.fullscreen { min-height: 100vh; }
+.fullscreen-main { height: calc(100vh - 3rem); display: grid; grid-template-rows: auto 1fr auto auto; }
+
+.scoreboard { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; padding: 0.25rem 0; }
+.scores { display: flex; gap: 1rem; }
+.score-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+/* Nature-themed animated gradient background for the board container */
+.board {
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  display: grid;
+  gap: 1px;
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(34,197,94,0.12), transparent 70%),
+    radial-gradient(120% 120% at 100% 100%, rgba(59,130,246,0.10), transparent 70%),
+    linear-gradient(135deg, rgba(16,185,129,0.08), rgba(34,197,94,0.06));
+  background-size: 400% 400%;
+  animation: natureShift 24s ease-in-out infinite;
+  border-radius: 14px;
+  overflow: hidden;
+  outline: 2px solid var(--grid);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+@keyframes natureShift { 0% { background-position: 0% 0%; } 50% { background-position: 100% 100%; } 100% { background-position: 0% 0%; } }
+
+.cell { background: #0000; }
+
+/* Snake visuals: rounded with subtle shading */
+.cell-snake { border-radius: 9px; box-shadow: inset 0 -2px 0 0 color-mix(in srgb, #000 12%, #0000), inset 0 2px 0 0 color-mix(in srgb, #fff 10%, #0000); }
+.cell-snake--player { background: radial-gradient(circle at 30% 30%, var(--snake-player), color-mix(in srgb, var(--snake-player) 80%, #0000)); }
+.cell-snake--ai { background: radial-gradient(circle at 30% 30%, var(--snake-ai-0), color-mix(in srgb, var(--snake-ai-0) 80%, #0000)); }
+.cell-snake--ai-0 { background: radial-gradient(circle at 30% 30%, var(--snake-ai-0), color-mix(in srgb, var(--snake-ai-0) 80%, #0000)); }
+.cell-snake--ai-1 { background: radial-gradient(circle at 30% 30%, var(--snake-ai-1), color-mix(in srgb, var(--snake-ai-1) 80%, #0000)); }
+.cell-snake--ai-2 { background: radial-gradient(circle at 30% 30%, var(--snake-ai-2), color-mix(in srgb, var(--snake-ai-2) 80%, #0000)); }
+.cell-snake--ai-3 { background: radial-gradient(circle at 30% 30%, var(--snake-ai-3), color-mix(in srgb, var(--snake-ai-3) 80%, #0000)); }
+.cell-snake--ai-4 { background: radial-gradient(circle at 30% 30%, var(--snake-ai-4), color-mix(in srgb, var(--snake-ai-4) 80%, #0000)); }
+
+.cell-snake--head { position: relative; border-radius: 11px; }
+.cell-snake--head.head--right::before,
+.cell-snake--head.head--right::after,
+.cell-snake--head.head--left::before,
+.cell-snake--head.head--left::after,
+.cell-snake--head.head--up::before,
+.cell-snake--head.head--up::after,
+.cell-snake--head.head--down::before,
+.cell-snake--head.head--down::after {
+  content: '';
+  position: absolute;
+  width: 18%;
+  height: 18%;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px color-mix(in srgb, #000 20%, #0000) inset;
+}
+.cell-snake--head.head--right::before { left: 55%; top: 30%; }
+.cell-snake--head.head--right::after { left: 55%; bottom: 30%; }
+.cell-snake--head.head--left::before { right: 55%; top: 30%; }
+.cell-snake--head.head--left::after { right: 55%; bottom: 30%; }
+.cell-snake--head.head--up::before { top: 55%; left: 30%; }
+.cell-snake--head.head--up::after { top: 55%; right: 30%; }
+.cell-snake--head.head--down::before { bottom: 55%; left: 30%; }
+.cell-snake--head.head--down::after { bottom: 55%; right: 30%; }
+
+.cell-food { background: radial-gradient(circle at 60% 40%, #fff8, var(--food)); border-radius: 50%; box-shadow: inset 0 -2px 0 0 color-mix(in srgb, #000 10%, #0000); }
+
+.board--gameover { filter: grayscale(0.4) brightness(0.9); }
+
+.controls { display: grid; gap: 0.5rem; justify-items: center; align-items: center; padding-top: 0.25rem; }
+.dpad { display: grid; grid-template-rows: auto auto auto; gap: 0.25rem; align-items: center; justify-items: center; }
+.hrow { display: grid; grid-template-columns: auto auto; gap: 0.25rem; }
+.actions { display: flex; gap: 0.5rem; }
+
+.ai-controls { display: flex; align-items: center; gap: 0.5rem; justify-content: center; padding-top: 0.25rem; }
+.ai-controls input[type="range"] { width: 200px; }
+
+.btn { background: transparent; color: var(--fg); border: 1px solid var(--grid); padding: 0.4rem 0.7rem; border-radius: 8px; cursor: pointer; }
+.btn:hover, .btn:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); }
+.btn:active { transform: translateY(1px); }
+
+.overlay { position: fixed; inset: 0; background: color-mix(in srgb, var(--bg) 60%, transparent); display: grid; place-items: center; }
+.overlay-card { background: var(--bg); color: var(--fg); border: 1px solid var(--grid); border-radius: 12px; padding: 1rem 1.25rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center; }
+
+@media (max-width: 600px) {
+  .header h1 { font-size: 1.1rem; }
+}
