@@ -1,0 +1,55 @@
+:root {
+  --bg: #f8fafc;
+  --fg: #0f172a;
+  --grid: #e2e8f0;
+  --snake: #10b981;
+  --food: #ef4444;
+  --accent: #3b82f6;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b1020;
+    --fg: #e5e7eb;
+    --grid: #1f2937;
+    --snake: #22c55e;
+    --food: #f87171;
+    --accent: #60a5fa;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; background: var(--bg); color: var(--fg); }
+
+.app { min-height: 100%; display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 1rem; }
+.header { width: 100%; max-width: 720px; display: flex; justify-content: center; align-items: center; }
+.header h1 { margin: 0.5rem 0; font-size: 1.75rem; }
+
+.main { width: 100%; max-width: 720px; display: grid; gap: 1rem; grid-template-rows: auto 1fr auto; }
+
+.scoreboard { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+.scores { display: flex; gap: 1rem; }
+.score-actions { display: flex; gap: 0.5rem; }
+
+.board { aspect-ratio: 1/1; width: 100%; max-width: 640px; margin: 0 auto; display: grid; gap: 1px; background: var(--grid); border-radius: 8px; overflow: hidden; outline: 2px solid var(--grid); }
+.cell { background: var(--bg); }
+.cell-snake { background: var(--snake); }
+.cell-food { background: var(--food); }
+.board--gameover { filter: grayscale(0.4) brightness(0.9); }
+
+.controls { display: grid; gap: 0.75rem; justify-items: center; }
+.dpad { display: grid; grid-template-rows: auto auto auto; gap: 0.25rem; align-items: center; justify-items: center; }
+.hrow { display: grid; grid-template-columns: auto auto; gap: 0.25rem; }
+.actions { display: flex; gap: 0.5rem; }
+
+.btn { background: transparent; color: var(--fg); border: 1px solid var(--grid); padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer; }
+.btn:hover, .btn:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); }
+.btn:active { transform: translateY(1px); }
+
+.overlay { position: fixed; inset: 0; background: color-mix(in srgb, var(--bg) 60%, transparent); display: grid; place-items: center; }
+.overlay-card { background: var(--bg); color: var(--fg); border: 1px solid var(--grid); border-radius: 12px; padding: 1rem 1.25rem; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; }
+
+@media (max-width: 480px) {
+  .header h1 { font-size: 1.4rem; }
+}
