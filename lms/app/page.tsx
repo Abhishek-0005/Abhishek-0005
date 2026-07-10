@@ -1,11 +1,14 @@
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
+import { AvailabilityBadge } from '@/components/AvailabilityBadge'
 
 export default async function HomePage() {
   const books = await prisma.book.findMany({
     orderBy: { createdAt: 'desc' },
     take: 20,
   })
+
+  const counts = await Promise.all(books.map(b => prisma.loan.count({ where: { bookId: b.id, returnedAt: null } })))
 
   return (
     <main>
@@ -14,13 +17,21 @@ export default async function HomePage() {
         <Link href="/auth/signin" className="text-blue-600 underline">Sign in</Link>
       </div>
       <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {books.map((b) => (
-          <li key={b.id} className="rounded border p-4 bg-white">
-            <h3 className="font-medium text-lg">{b.title}</h3>
-            <p className="text-sm text-gray-600">{b.author}</p>
-            <Link className="text-blue-600 underline text-sm" href={`/book/${b.id}`}>Details</Link>
-          </li>
-        ))}
+        {books.map((b, i) => {
+          const available = Math.max(0, b.totalCopies - counts[i])
+          return (
+            <li key={b.id} className="rounded border p-4 bg-white">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium text-lg">{b.title}</h3>
+                  <p className="text-sm text-gray-600">{b.author}</p>
+                </div>
+                <AvailabilityBadge available={available} />
+              </div>
+              <Link className="text-blue-600 underline text-sm" href={`/book/${b.id}`}>Details</Link>
+            </li>
+          )
+        })}
       </ul>
     </main>
   )
