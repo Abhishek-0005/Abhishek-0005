@@ -28,14 +28,16 @@ model User {
   updatedAt     DateTime       @updatedAt
   memberProfile MemberProfile?
   loans         Loan[]         @relation("UserLoans")
+  accounts      Account[]
+  sessions      Session[]
 }
 
 model MemberProfile {
-  id        String      @id @default(cuid())
-  user      User        @relation(fields: [userId], references: [id])
-  userId    String      @unique
+  id        String       @id @default(cuid())
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String       @unique
   status    MemberStatus @default(ACTIVE)
-  joinedAt  DateTime    @default(now())
+  joinedAt  DateTime     @default(now())
 }
 
 model Book {
@@ -63,4 +65,39 @@ model Loan {
   renewals   Int      @default(0)
   fineCents  Int      @default(0)
   finePaid   Boolean  @default(false)
+}
+
+// NextAuth models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
