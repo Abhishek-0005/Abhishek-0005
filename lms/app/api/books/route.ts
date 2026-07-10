@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
+import { auth } from '@/lib/auth'
 
 const createBookSchema = z.object({
   title: z.string().min(1),
@@ -27,6 +28,11 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const session = await auth()
+  const role = (session?.user as any)?.role
+  if (!role) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!['ADMIN', 'LIBRARIAN'].includes(String(role))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
   const json = await req.json()
   const parsed = createBookSchema.safeParse(json)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
@@ -39,6 +45,11 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const session = await auth()
+  const role = (session?.user as any)?.role
+  if (!role) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!['ADMIN', 'LIBRARIAN'].includes(String(role))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
   const json = await req.json()
   const { id, ...rest } = json
   if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
