@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  LIBRARIAN
+  MEMBER
+}
+
+enum MemberStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  passwordHash  String
+  role          Role           @default(MEMBER)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  memberProfile MemberProfile?
+  loans         Loan[]         @relation("UserLoans")
+}
+
+model MemberProfile {
+  id        String      @id @default(cuid())
+  user      User        @relation(fields: [userId], references: [id])
+  userId    String      @unique
+  status    MemberStatus @default(ACTIVE)
+  joinedAt  DateTime    @default(now())
+}
+
+model Book {
+  id          String   @id @default(cuid())
+  title       String
+  author      String
+  isbn        String   @unique
+  category    String
+  summary     String
+  totalCopies Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  loans       Loan[]
+}
+
+model Loan {
+  id         String   @id @default(cuid())
+  book       Book     @relation(fields: [bookId], references: [id])
+  bookId     String
+  member     User     @relation("UserLoans", fields: [memberId], references: [id])
+  memberId   String
+  borrowedAt DateTime @default(now())
+  dueAt      DateTime
+  returnedAt DateTime?
+  renewals   Int      @default(0)
+  fineCents  Int      @default(0)
+  finePaid   Boolean  @default(false)
+}
