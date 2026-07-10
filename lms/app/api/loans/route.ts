@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { addDays, isBefore } from '@/lib/time'
 import { z } from 'zod'
+import { auth } from '@/lib/auth'
 
 const borrowSchema = z.object({
   bookId: z.string().min(1),
@@ -16,11 +17,20 @@ const updateSchema = z.object({
 const FINE_PER_DAY_CENTS = 1000
 
 export async function POST(req: NextRequest) {
+  const session = await auth()
+  const role = (session?.user as any)?.role
+  const uid = (session?.user as any)?.id
+  if (!role) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const json = await req.json()
   const parsed = borrowSchema.safeParse(json)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 
   const { bookId, memberId } = parsed.data
+  if (!['ADMIN', 'LIBRARIAN'].includes(String(role)) && uid !== memberId) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
   const book = await prisma.book.findUnique({ where: { id: bookId } })
   if (!book) return NextResponse.json({ error: 'Book not found' }, { status: 404 })
 
@@ -43,6 +53,11 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const session = await auth()
+  const role = (session?.user as any)?.role
+  const uid = (session?.user as any)?.id
+  if (!role) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const json = await req.json()
   const parsed = updateSchema.safeParse(json)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
@@ -50,6 +65,10 @@ export async function PATCH(req: NextRequest) {
   const { id, action } = parsed.data
   const loan = await prisma.loan.findUnique({ where: { id } })
   if (!loan) return NextResponse.json({ error: 'Loan not found' }, { status: 404 })
+
+  if (!['ADMIN', 'LIBRARIAN'].includes(String(role)) && uid !== loan.memberId) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
 
   if (action === 'renew') {
     if (loan.returnedAt) return NextResponse.json({ error: 'Already returned' }, { status: 400 })
