@@ -1,0 +1,53 @@
+name: CI Prepare
+# Mode 2 execution backend. The coding agent dispatches this (trigger_workflow)
+# AFTER committing source to a feature branch, with the dispatch `ref` set to
+# that branch. It generates the real package-lock.json (correct integrity
+# hashes — something an API-only agent cannot do), commits it back to the
+# branch, then gates on build + test.
+#
+# Placement: must exist on the DEFAULT branch to be dispatchable. Feature
+# branches cut from the default branch inherit it, so checkout (which defaults
+# to the dispatched ref) lands on the feature branch automatically — no custom
+# input needed.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dispatched branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Determine Node version
+        id: node
+        run: echo "version=$( [ -f .nvmrc ] && cat .nvmrc || echo 20 )" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.node.outputs.version }}
+
+      - name: Install and generate lockfile
+        run: npm install
+
+      - name: Commit lockfile back if it changed
+        run: |
+          if ! git diff --quiet -- package-lock.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add package-lock.json
+            git commit -m "chore(ci): generate package-lock.json [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
+
+      - name: Build
+        run: npm run build --if-present
+
+      - name: Test
+        run: npm test
