@@ -1,0 +1,12 @@
+{
+  "name": "abhishek-0005-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "npm run -w apps/calculator dev",
+    "build": "npm run -w apps/calculator build",
+    "preview": "npm run -w apps/calculator preview",
+    "test": "npm run -w apps/calculator test --"
+  }
+}
