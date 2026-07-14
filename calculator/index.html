@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculator</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="app" aria-labelledby="app-title">
+    <h1 id="app-title" class="sr-only">Accessible Calculator</h1>
+
+    <section class="calculator" data-calculator-root>
+      <div class="display" aria-live="polite" aria-atomic="true">
+        <div class="previous" data-previous aria-label="previous expression"></div>
+        <div class="current" data-current aria-label="current value">0</div>
+      </div>
+
+      <div class="keys" role="group" aria-label="Calculator keys">
+        <button type="button" class="key key-func" data-action="clear" aria-label="All Clear" aria-keyshortcuts="Escape">AC</button>
+        <button type="button" class="key key-func" data-action="delete" aria-label="Delete" aria-keyshortcuts="Backspace">⌫</button>
+        <button type="button" class="key key-func" data-action="percent" aria-label="Percent" aria-keyshortcuts="%">%</button>
+        <button type="button" class="key key-op" data-action="operation" data-op="÷" aria-label="Divide" aria-keyshortcuts="/">÷</button>
+
+        <button type="button" class="key" data-action="digit" data-digit="7" aria-keyshortcuts="7">7</button>
+        <button type="button" class="key" data-action="digit" data-digit="8" aria-keyshortcuts="8">8</button>
+        <button type="button" class="key" data-action="digit" data-digit="9" aria-keyshortcuts="9">9</button>
+        <button type="button" class="key key-op" data-action="operation" data-op="×" aria-label="Multiply" aria-keyshortcuts="*">×</button>
+
+        <button type="button" class="key" data-action="digit" data-digit="4" aria-keyshortcuts="4">4</button>
+        <button type="button" class="key" data-action="digit" data-digit="5" aria-keyshortcuts="5">5</button>
+        <button type="button" class="key" data-action="digit" data-digit="6" aria-keyshortcuts="6">6</button>
+        <button type="button" class="key key-op" data-action="operation" data-op="-" aria-label="Subtract" aria-keyshortcuts="-">−</button>
+
+        <button type="button" class="key" data-action="digit" data-digit="1" aria-keyshortcuts="1">1</button>
+        <button type="button" class="key" data-action="digit" data-digit="2" aria-keyshortcuts="2">2</button>
+        <button type="button" class="key" data-action="digit" data-digit="3" aria-keyshortcuts="3">3</button>
+        <button type="button" class="key key-op" data-action="operation" data-op="+" aria-label="Add" aria-keyshortcuts="+">+</button>
+
+        <button type="button" class="key key-func" data-action="negate" aria-label="Negate">+/−</button>
+        <button type="button" class="key" data-action="digit" data-digit="0" aria-keyshortcuts="0">0</button>
+        <button type="button" class="key" data-action="decimal" aria-label="Decimal point" aria-keyshortcuts=".">.</button>
+        <button type="button" class="key key-equals" data-action="equals" aria-label="Equals" aria-keyshortcuts="Enter">=</button>
+      </div>
+    </section>
+
+    <p class="sr-only" id="kb-help">Keyboard: 0-9 digits, . decimal, + - * / operations, % percent, Enter equals, Backspace delete, Escape all clear.</p>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>

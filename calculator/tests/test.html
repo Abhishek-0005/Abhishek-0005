@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculator Tests</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <style> body { padding: 1rem; } .pass{color:#16a34a} .fail{color:#ef4444} </style>
+</head>
+<body>
+  <h1>Calculator In-Browser Tests</h1>
+  <p>Open DevTools console for detailed logs. This page simulates button presses and keyboard events.</p>
+  <iframe id="app" src="../index.html" style="width:360px;height:560px;border:1px solid #334155;border-radius:12px;"></iframe>
+
+  <script>
+  (async function(){
+    const frame = document.getElementById('app');
+    await new Promise(r => frame.addEventListener('load', r, { once: true }));
+    const doc = frame.contentDocument;
+
+    function clickSelector(sel){ doc.querySelector(sel).click(); }
+    function key(k){ frame.contentWindow.document.dispatchEvent(new KeyboardEvent('keydown', { key: k })); }
+    function text(){ return doc.querySelector('[data-current]').textContent.trim(); }
+
+    const results = [];
+    function test(name, fn){
+      try { fn(); results.push({ name, ok: true }); }
+      catch(e){ console.error(e); results.push({ name, ok: false, err: e }); }
+    }
+
+    function expect(val){
+      return {
+        toBe: (exp) => { if (val !== exp) throw new Error(`Expected ${exp}, got ${val}`); }
+      }
+    }
+
+    // Tests
+    test('basic addition 2 + 3 = 5', () => {
+      clickSelector('[data-action="clear"]');
+      clickSelector('[data-digit="2"]');
+      clickSelector('[data-op="+"]');
+      clickSelector('[data-digit="3"]');
+      clickSelector('[data-action="equals"]');
+      expect(text()).toBe('5');
+    });
+
+    test('prevent multiple decimals', () => {
+      clickSelector('[data-action="clear"]');
+      clickSelector('[data-digit="1"]');
+      clickSelector('[data-action="decimal"]');
+      clickSelector('[data-action="decimal"]');
+      clickSelector('[data-action="decimal"]');
+      expect(text()).toBe('1.');
+    });
+
+    test('division by zero error', () => {
+      clickSelector('[data-action="clear"]');
+      clickSelector('[data-digit="9"]');
+      clickSelector('[data-op="÷"]');
+      clickSelector('[data-digit="0"]');
+      clickSelector('[data-action="equals"]');
+      expect(text()).toBe('Error');
+    });
+
+    test('keyboard: 7 * 8 = 56', () => {
+      key('Escape');
+      key('7'); key('*'); key('8'); key('Enter');
+      expect(text()).toBe('56');
+    });
+
+    // Render results
+    const ul = document.createElement('ul');
+    for (const r of results){
+      const li = document.createElement('li');
+      li.textContent = `${r.ok ? 'PASS' : 'FAIL'}: ${r.name}`;
+      li.className = r.ok ? 'pass' : 'fail';
+      ul.appendChild(li);
+    }
+    document.body.appendChild(ul);
+  })();
+  </script>
+</body>
+</html>
