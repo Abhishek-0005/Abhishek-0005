@@ -1,0 +1,37 @@
+name: CI
+# Standing deterministic gate. Runs on every PR and on pushes to main. Prefers
+# `npm ci` (reproducible, audit-grade) whenever a committed lockfile exists —
+# which ci-prepare guarantees before the PR is opened — and only bootstraps with
+# `npm install` if a repo somehow has no lockfile yet.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Determine Node version
+        id: node
+        run: echo "version=$( [ -f .nvmrc ] && cat .nvmrc || echo 20 )" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.node.outputs.version }}
+
+      - name: Install dependencies (deterministic; bootstrap only if no lockfile)
+        run: if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+      - name: Build
+        run: npm run build --if-present
+
+      - name: Test
+        run: npm test
