@@ -1,0 +1,67 @@
+name: Deploy
+# Self-provisioning production deploy over SSH. The GitHub runner only
+# ORCHESTRATES — everything below runs ON your server inside the SSH script.
+# The FIRST run turns a bare Ubuntu (e.g. fresh EC2) box into a running app
+# (installs Node + pm2, clones the repo, starts it under pm2, enables boot
+# persistence). EVERY later run just pulls + rebuilds + reloads. It is
+# idempotent, so re-running is always safe.
+#
+# Configure per repo (or once at the Org level) under
+# Settings → Secrets and variables → Actions:
+#   Secrets:   DEPLOY_HOST    — server IP / hostname
+#              DEPLOY_USER    — SSH user (e.g. ubuntu)
+#              DEPLOY_SSH_KEY — contents of your .pem PRIVATE key
+#              DEPLOY_PORT    — optional, defaults to 22
+#   Variables: DEPLOY_PATH    — app directory on the server (e.g. /var/www/app)
+#              PM2_APP_NAME   — optional, defaults to the repository name
+# NOTE: server-side clone uses the public HTTPS URL — for a PRIVATE repo, add a
+# deploy key on the server or switch to a build-on-runner + rsync step.
+# The `production` environment enforces the manual approval gate.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Provision and deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
+          script: |
+            set -e
+
+            # 1. First run on a bare box installs Node, git, pm2 (skipped if present)
+            if ! command -v node >/dev/null 2>&1; then
+              curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+              sudo apt-get install -y nodejs
+            fi
+            command -v git >/dev/null 2>&1 || sudo apt-get install -y git
+            command -v pm2 >/dev/null 2>&1 || sudo npm i -g pm2
+
+            # 2. First run clones the repo; later runs pull
+            APP_DIR="${{ vars.DEPLOY_PATH }}"
+            if [ ! -d "$APP_DIR/.git" ]; then
+              sudo mkdir -p "$APP_DIR"
+              sudo chown -R "$USER" "$APP_DIR"
+              git clone "https://github.com/${{ github.repository }}.git" "$APP_DIR"
+            fi
+            cd "$APP_DIR"
+            git pull --ff-only origin "${{ github.ref_name }}"
+
+            # 3. Install (deterministic, self-healing), build, (re)start under pm2
+            if [ -f package-lock.json ]; then npm ci; else npm install; fi
+            npm run build --if-present
+            APP_NAME="${{ vars.PM2_APP_NAME || github.event.repository.name }}"
+            pm2 reload "$APP_NAME" --update-env || pm2 start npm --name "$APP_NAME" -- start
+            pm2 save
+
+            # 4. Keep the app running across server reboots (best-effort)
+            sudo env PATH=$PATH pm2 startup systemd -u "$USER" --hp "$HOME" >/dev/null 2>&1 || true
