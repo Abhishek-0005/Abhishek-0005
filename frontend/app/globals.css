@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #fff;
+  --foreground: #111827;
+}
+
+html, body { height: 100%; }
+
+.container { max-width: 72rem; }
+
+/* Simple toast styles */
+.toast {
+  @apply rounded-md border px-4 py-3 text-sm shadow-sm;
+}
+.toast-error { @apply border-red-200 bg-red-50 text-red-800; }
+.toast-success { @apply border-green-200 bg-green-50 text-green-800; }
