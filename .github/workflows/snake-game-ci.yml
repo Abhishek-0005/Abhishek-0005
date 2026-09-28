@@ -1,0 +1,13 @@
+name: snake-game CI
+on:
+  push:
+    branches: [shipper-snake-game]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Game page exists
+        run: test -f snake-game/index.html
+      - name: Game script parses
+        run: sed -n '/<script>/,/<\/script>/p' snake-game/index.html | sed '1d;$d' > game.js && node --check game.js
