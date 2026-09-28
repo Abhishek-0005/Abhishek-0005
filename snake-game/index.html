@@ -24,14 +24,21 @@
   var canvas = document.getElementById("board"), ctx = canvas.getContext("2d");
   var scoreEl = document.getElementById("score"), bestEl = document.getElementById("best");
   var best = Number(localStorage.getItem("snake-best") || 0);
-  var snake, dir, next, food, score, timer, over;
+  var snake, dir, next, food, score, timer, over, started;
   bestEl.textContent = best;
 
   function reset() {
     snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
-    dir = { x: 1, y: 0 }; next = dir; score = 0; over = false;
+    dir = { x: 1, y: 0 }; next = dir; score = 0; over = false; started = false;
     scoreEl.textContent = 0; placeFood();
-    clearInterval(timer); timer = setInterval(step, TICK); draw();
+    clearInterval(timer); draw();
+    message("Press an arrow key to start");
+  }
+
+  function message(text) {
+    ctx.fillStyle = "rgba(15,23,42,0.75)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#e2e8f0"; ctx.textAlign = "center"; ctx.font = "bold 24px system-ui";
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
   }
 
   function placeFood() {
@@ -56,9 +63,7 @@
     over = true; clearInterval(timer);
     if (score > best) { best = score; localStorage.setItem("snake-best", best); bestEl.textContent = best; }
     draw();
-    ctx.fillStyle = "rgba(15,23,42,0.75)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#e2e8f0"; ctx.textAlign = "center"; ctx.font = "bold 28px system-ui";
-    ctx.fillText("Game over - " + score, canvas.width / 2, canvas.height / 2);
+    message("Game over - " + score);
   }
 
   function draw() {
@@ -74,6 +79,7 @@
     if (over) return;
     if (x === -dir.x && y === -dir.y) return;
     next = { x: x, y: y };
+    if (!started) { started = true; timer = setInterval(step, TICK); }
   }
 
   var KEYS = { ArrowUp: [0, -1], w: [0, -1], ArrowDown: [0, 1], s: [0, 1], ArrowLeft: [-1, 0], a: [-1, 0], ArrowRight: [1, 0], d: [1, 0] };
