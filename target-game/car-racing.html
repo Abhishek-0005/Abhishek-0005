@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Racing Game</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #87CEEB; }
+        #game { position: relative; width: 300px; height: 600px; overflow: hidden; background: #333; }
+        .car { position: absolute; bottom: 10px; width: 30px; height: 50px; background: red; }
+        .enemy-car { position: absolute; width: 30px; height: 50px; background: blue; }
+    </style>
+</head>
+<body>
+    <div id="game"></div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function App() {
+            const [carPosition, setCarPosition] = useState(135);
+            const [enemies, setEnemies] = useState([]);
+            const [score, setScore] = useState(0);
+            const [gameOver, setGameOver] = useState(false);
+
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    if (e.key === 'ArrowLeft' && carPosition > 0) {
+                        setCarPosition(pos => pos - 15);
+                    } else if (e.key === 'ArrowRight' && carPosition < 270) {
+                        setCarPosition(pos => pos + 15);
+                    }
+                };
+                window.addEventListener('keydown', handleKeyDown);
+                const interval = setInterval(() => {
+                    if (!gameOver) {
+                        setScore(s => s + 1);
+                        setEnemies(prev => {
+                            const newEnemies = prev.map(e => ({ ...e, y: e.y + 5 }));
+                            if (Math.random() < 0.1) {
+                                newEnemies.push({ id: Date.now(), x: Math.floor(Math.random() * 3) * 100, y: 0 });
+                            }
+                            return newEnemies.filter(e => e.y < 600);
+                        });
+                        checkCollision();
+                    }
+                }, 100);
+                return () => {
+                    window.removeEventListener('keydown', handleKeyDown);
+                    clearInterval(interval);
+                };
+            }, [carPosition, gameOver]);
+
+            const checkCollision = () => {
+                enemies.forEach(enemy => {
+                    if (enemy.y > 550 && enemy.x === carPosition) {
+                        setGameOver(true);
+                    }
+                });
+            };
+
+            const restartGame = () => {
+                setCarPosition(135);
+                setEnemies([]);
+                setScore(0);
+                setGameOver(false);
+            };
+
+            return (
+                <div>
+                    <div id="game">
+                        <div className="car" style={{ left: carPosition }}></div>
+                        {enemies.map(enemy => (
+                            <div key={enemy.id} className="enemy-car" style={{ left: enemy.x, top: enemy.y }}></div>
+                        ))}
+                    </div>
+                    <h2>Score: {score}</h2>
+                    {gameOver && <h2>Game Over! Final Score: {score} <button onClick={restartGame}>Restart</button></h2>}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('game'));
+    </script>
+</body>
+</html>
