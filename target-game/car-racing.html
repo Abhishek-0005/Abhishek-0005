@@ -1,80 +1,120 @@
-const LANES = [0, 100, 200];
-
-const Game = () => {
-    const [lane, setLane] = useState(1);
-    const laneRef = useRef(lane);
-    const [enemies, setEnemies] = useState([]);
-    const [speed, setSpeed] = useState(5);
-    const [score, setScore] = useState(0);
-    const [gameOver, setGameOver] = useState(false);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setEnemies(prevEnemies => {
-                const newEnemies = prevEnemies.map(enemy => ({...enemy, y: enemy.y + speed}));
-                // Collision check
-                checkCollision(newEnemies);
-                return newEnemies;
-            });
-            setSpeed(prevSpeed => prevSpeed + 0.5);
-        }, 5000);
-        return () => clearInterval(interval);
-    }, []);
-
-    const checkCollision = (updatedEnemies) => {
-        updatedEnemies.forEach(enemy => {
-            if (enemy.lane === laneRef.current && enemy.y > 520 && enemy.y < 600) {
-                setGameOver(true);
-            }
-        });
-    };
-
-    const handleKeyPress = (event) => {
-        if (event.key === 'ArrowLeft' && lane > 0) {
-            setLane(prevLane => prevLane - 1);
-        } else if (event.key === 'ArrowRight' && lane < 2) {
-            setLane(prevLane => prevLane + 1);
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Racing Game</title>
+    <style>
+        body { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            background-color: #000;
         }
-        laneRef.current = lane;
-    };
+        #road { 
+            width: 300px; 
+            height: 600px; 
+            background-color: #444; 
+            position: relative; 
+        }
+        .lane { 
+            position: absolute; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const LANES = [0, 100, 200];
 
-    useEffect(() => {
-        window.addEventListener('keydown', handleKeyPress);
-        return () => window.removeEventListener('keydown', handleKeyPress);
-    }, [lane]);
+        function Game() {
+            const [laneIndex, setLaneIndex] = useState(1);
+            const laneRef = useRef(laneIndex);
+            const [enemies, setEnemies] = useState([]);
+            const [speed, setSpeed] = useState(5);
+            const [score, setScore] = useState(0);
+            const [gameOver, setGameOver] = useState(false);
 
-    const spawnEnemies = () => {
-        const randomLane = Math.floor(Math.random() * LANES.length);
-        setEnemies(prev => [...prev, {lane: randomLane, y: 0}]);
-    };
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    if (gameOver) return;
+                    if (e.key === 'ArrowLeft' && laneIndex > 0) {
+                        setLaneIndex(laneIndex - 1);
+                    } else if (e.key === 'ArrowRight' && laneIndex < 2) {
+                        setLaneIndex(laneIndex + 1);
+                    }
+                };
+                window.addEventListener('keydown', handleKeyDown);
+                return () => window.removeEventListener('keydown', handleKeyDown);
+            }, [laneIndex, gameOver]);
 
-    const handleRestart = () => {
-        setLane(1);
-        setEnemies([]);
-        setSpeed(5);
-        setScore(0);
-        setGameOver(false);
-    };
+            useEffect(() => {
+                const interval = setInterval(() => {
+                    setSpeed(prev => prev + 0.5);
+                }, 5000);
+                return () => clearInterval(interval);
+            }, []);
 
-    // Game Over screen
-    if (gameOver) {
-        return (
-            <div>
-                <h1>Game Over</h1>
-                <p>Score: {score}</p>
-                <button onClick={handleRestart}>Restart</button>
-            </div>
-        );
-    }
+            useEffect(() => {
+                const spawnEnemy = () => {
+                    const lane = LANES[Math.floor(Math.random() * LANES.length)];
+                    setEnemies(prev => [...prev, { lane, y: 0 }]);
+                };
+                const enemyInterval = setInterval(spawnEnemy, 1000);
+                return () => clearInterval(enemyInterval);
+            }, []);
 
-    return (
-        <div style={{ position: 'relative' }}>
-            <div style={{ position: 'absolute', left: LANES[lane] }}>Player</div>
-            {enemies.map((enemy, index) => (
-                <div key={index} style={{ position: 'absolute', left: LANES[enemy.lane], top: enemy.y }}>Enemy</div>
-            ))}
-        </div>
-    );
-};
+            useEffect(() => {
+                const moveEnemies = () => {
+                    setEnemies(prev => {
+                        const newEnemies = prev.map(enemy => ({ ...enemy, y: enemy.y + speed }));
+                        newEnemies.forEach((enemy) => {
+                            if (enemy.lane === LANES[laneIndex] && enemy.y > 520 && enemy.y < 600) {
+                                setGameOver(true);
+                            }
+                        });
+                        return newEnemies.filter(enemy => enemy.y < 600);
+                    });
+                };
+                const moveInterval = setInterval(moveEnemies, 100);
+                return () => clearInterval(moveInterval);
+            }, [speed, laneIndex]);
 
-export default Game;
+            const restartGame = () => {
+                setLaneIndex(1);
+                setEnemies([]);
+                setSpeed(5);
+                setScore(0);
+                setGameOver(false);
+            };
+
+            return (
+                <div>
+                    <div id="road">
+                        {enemies.map((enemy, index) => (
+                            <div key={index} className="lane" style={{ left: enemy.lane }} />
+                        ))}
+                    </div>
+                    {gameOver && (
+                        <div>
+                            <h1>Game Over</h1>
+                            <p>Final Score: {score}</p>
+                            <button onClick={restartGame}>Restart</button>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<Game />);
+    </script>
+</body>
+</html>
