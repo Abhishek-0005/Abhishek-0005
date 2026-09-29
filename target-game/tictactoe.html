@@ -1,1 +1,86 @@
-<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Tic Tac Toe</title>\n    <style>\n        body {\n            display: flex;\n            justify-content: center;\n            align-items: center;\n            height: 100vh;\n            background-color: #f4f4f4;\n        }\n        #game {\n            display: grid;\n            grid-template-columns: repeat(3, 100px);\n            grid-gap: 5px;\n        }\n        .cell {\n            width: 100px;\n            height: 100px;\n            display: flex;\n            justify-content: center;\n            align-items: center;\n            font-size: 24px;\n            background-color: white;\n            cursor: pointer;\n            border: 1px solid #ccc;\n        }\n        .cell:hover {\n            background-color: #eaeaea;\n        }\n    </style>\n</head>\n<body>\n    <div id="game"></div>\n    <script>\n        const game = document.getElementById('game');\n        let currentPlayer = 'X';\n        const board = ['', '', '', '', '', '', '', '', ''];\n        const winningCombinations = [\n            [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows\n            [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns\n            [0, 4, 8], [2, 4, 6] // diagonals\n        ];\n\n        function checkWin() {\n            return winningCombinations.some(combination => {\n                const [a, b, c] = combination;\n                return board[a] && board[a] === board[b] && board[a] === board[c];\n            });\n        }\n\n        function checkDraw() {\n            return board.every(cell => cell);\n        }\n\n        function handleClick(index) {\n            if (board[index] || checkWin()) return;\n            board[index] = currentPlayer;\n            render();\n            if (checkWin()) {\n                setTimeout(() => alert(currentPlayer + ' wins!'), 10);\n            } else if (checkDraw()) {\n                setTimeout(() => alert('Draw!'), 10);\n            } else {\n                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';\n            }\n        }\n\n        function render() {\n            game.innerHTML = '';\n            board.forEach((cell, index) => {\n                const cellDiv = document.createElement('div');\n                cellDiv.className = 'cell';\n                cellDiv.textContent = cell;\n                cellDiv.addEventListener('click', () => handleClick(index));\n                game.appendChild(cellDiv);\n            });\n        }\n\n        render();\n    </script>\n</body>\n</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        #game {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 5px;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            background-color: white;
+            cursor: pointer;
+            border: 1px solid #ccc;
+        }
+        .cell:hover {
+            background-color: #eaeaea;
+        }
+    </style>
+</head>
+<body>
+    <div id="game"></div>
+    <script>
+        const game = document.getElementById('game');
+        let currentPlayer = 'X';
+        const board = ['', '', '', '', '', '', '', '', ''];
+        const winningCombinations = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+            [0, 4, 8], [2, 4, 6] // diagonals
+        ];
+
+        function checkWin() {
+            return winningCombinations.some(combination => {
+                const [a, b, c] = combination;
+                return board[a] && board[a] === board[b] && board[a] === board[c];
+            });
+        }
+
+        function checkDraw() {
+            return board.every(cell => cell);
+        }
+
+        function handleClick(index) {
+            if (board[index] || checkWin()) return;
+            board[index] = currentPlayer;
+            render();
+            if (checkWin()) {
+                setTimeout(() => alert(currentPlayer + ' wins!'), 10);
+            } else if (checkDraw()) {
+                setTimeout(() => alert('Draw!'), 10);
+            } else {
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            }
+        }
+
+        function render() {
+            game.innerHTML = '';
+            board.forEach((cell, index) => {
+                const cellDiv = document.createElement('div');
+                cellDiv.className = 'cell';
+                cellDiv.textContent = cell;
+                cellDiv.addEventListener('click', () => handleClick(index));
+                game.appendChild(cellDiv);
+            });
+        }
+
+        render();
+    </script>
+</body>
+</html>
