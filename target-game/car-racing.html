@@ -12,6 +12,9 @@
         #game { position: relative; width: 300px; height: 600px; overflow: hidden; background: #333; }
         .car { position: absolute; bottom: 10px; width: 30px; height: 50px; background: red; }
         .enemy-car { position: absolute; width: 30px; height: 50px; background: blue; }
+        .button { position: absolute; bottom: 20px; width: 60px; height: 30px; background: white; border: 1px solid black; }
+        .left { left: 30px; }
+        .right { right: 30px; }
     </style>
 </head>
 <body>
@@ -38,7 +41,7 @@
                     if (!gameOver) {
                         setScore(s => s + 1);
                         setEnemies(prev => {
-                            const newEnemies = prev.map(e => ({ ...e, y: e.y + 5 }));
+                            const newEnemies = prev.map(e => ({ ...e, y: e.y + 10 }));
                             if (Math.random() < 0.1) {
                                 newEnemies.push({ id: Date.now(), x: Math.floor(Math.random() * 3) * 100, y: 0 });
                             }
@@ -68,6 +71,18 @@
                 setGameOver(false);
             };
 
+            const moveLeft = () => {
+                if (carPosition > 0) {
+                    setCarPosition(pos => pos - 15);
+                }
+            };
+
+            const moveRight = () => {
+                if (carPosition < 270) {
+                    setCarPosition(pos => pos + 15);
+                }
+            };
+
             return (
                 <div>
                     <div id="game">
@@ -78,6 +93,8 @@
                     </div>
                     <h2>Score: {score}</h2>
                     {gameOver && <h2>Game Over! Final Score: {score} <button onClick={restartGame}>Restart</button></h2>}
+                    <button className="button left" onClick={moveLeft}>Left</button>
+                    <button className="button right" onClick={moveRight}>Right</button>
                 </div>
             );
         }
