@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Paper Scissors</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Rock Paper Scissors</h1>
+    <div>
+        <button onclick="play('rock')">Rock</button>
+        <button onclick="play('paper')">Paper</button>
+        <button onclick="play('scissors')">Scissors</button>
+    </div>
+    <h2 id='result'></h2>
+    <h3>Score: <span id='score'>0</span></h3>
+    <button onclick="resetGame()">Reset</button>
+    <script>
+        let score = 0;
+        function play(userChoice) {
+            const choices = ['rock', 'paper', 'scissors'];
+            const computerChoice = choices[Math.floor(Math.random() * 3)];
+            let result = '';
+
+            if (userChoice === computerChoice) {
+                result = 'It\'s a tie!';
+            } else if (
+                (userChoice === 'rock' && computerChoice === 'scissors') ||
+                (userChoice === 'paper' && computerChoice === 'rock') ||
+                (userChoice === 'scissors' && computerChoice === 'paper')
+            ) {
+                result = 'You win!';
+                score++;
+            } else {
+                result = 'You lose!';
+                score--;
+            }
+
+            document.getElementById('result').innerText = `You chose: ${userChoice}, Computer chose: ${computerChoice}. ${result}`;
+            document.getElementById('score').innerText = score;
+        }
+        function resetGame() {
+            score = 0;
+            document.getElementById('result').innerText = '';
+            document.getElementById('score').innerText = score;
+        }
+    </script>
+</body>
+</html>
